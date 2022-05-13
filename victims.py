@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 LAMBDA = 1
-BUDGET = 10
+BUDGET = 4
 EPISODE_LENGTH = 10000
 BETA = 0.1
 class ObservationModel(Enum):
@@ -139,7 +139,8 @@ class BanditVictim(gym.Env):
         done = (self.time == EPISODE_LENGTH)
 
         return obs, attacker_reward, done, {'victim_reward': vict_reward,
-                                            'victim_regret': vict_regret}
+                                            'victim_regret': vict_regret,
+                                            'arm_choice': arm}
 
     def render(self, mode='human', close=False):
         print(self.alg.get_arm_probs())
