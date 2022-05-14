@@ -32,6 +32,9 @@ class AttackModel(ABC):
     def predict(self, obs):
         pass
 
+    @abstractmethod
+    def set_random_seed(self, seed):
+        pass
 
 class ZeroAttack(AttackModel):
     def __init__(self, victim: victims.BanditVictim):
@@ -42,6 +45,9 @@ class ZeroAttack(AttackModel):
 
     def predict(self, obs):
         return np.zeros(self.victim.action_space.shape), 0
+
+    def set_random_seed(self, seed):
+        pass
 
 
 class RandomAttack(AttackModel):
@@ -55,6 +61,8 @@ class RandomAttack(AttackModel):
     def predict(self, obs):
         return self.victim.action_space.sample(), 0
 
+    def set_random_seed(self, seed):
+        np.random.seed(seed)  # the action space sampling in gym is based on numpy rng
 
 def test_attacker(model, victim, num_iter, num_tests):
     seed = 0
@@ -159,31 +167,42 @@ def train_attackers(victim, victim_name, gamma):
 
 
 def test_attackers(victim, victim_name, gamma):
-
     for seed in range(0, NUM_SEEDS):
-        PPO_model = PPO.load("models/ppo/{victim_name}/{gamma}/ppo_{victim_name}_{gamma}_{seed}".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed), victim)
-        victim_rewards, attacker_rewards, victim_regrets, arm_choices = test_attacker(PPO_model, victim, NUM_ITER, NUM_TESTS)
-        fname = "raw_results/ppo/{victim_name}/{gamma}/ppo_{victim_name}_{gamma}_{seed}.npz".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed)
+        vanilla_model = ZeroAttack(victim)
+        victim_rewards, attacker_rewards, victim_regrets, arm_choices = test_attacker(vanilla_model, victim, NUM_ITER, NUM_TESTS)
+        fname = "raw_results/vanilla/{victim_name}/{gamma}/vanilla_{victim_name}_{gamma}_{seed}.npz".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed)
         os.makedirs(os.path.dirname(fname), exist_ok=True)
         np.savez_compressed(fname, victim_rewards=victim_rewards, attacker_rewards=attacker_rewards, victim_regrets=victim_regrets, arm_choices=arm_choices)
 
-        SAC_model = SAC.load("models/sac/{victim_name}/{gamma}/sac_{victim_name}_{gamma}_{seed}".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed), victim)
-        victim_rewards, attacker_rewards, victim_regrets, arm_choices = test_attacker(SAC_model, victim, NUM_ITER, NUM_TESTS)
-        "raw_results/sac/{victim_name}/{gamma}/sac_{victim_name}_{gamma}_{seed}.npz".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed)
+        random_attack_model = RandomAttack(victim)
+        victim_rewards, attacker_rewards, victim_regrets, arm_choices = test_attacker(random_attack_model, victim, NUM_ITER, NUM_TESTS)
+        fname = "raw_results/random/{victim_name}/{gamma}/random_{victim_name}_{gamma}_{seed}.npz".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed)
         os.makedirs(os.path.dirname(fname), exist_ok=True)
         np.savez_compressed(fname, victim_rewards=victim_rewards, attacker_rewards=attacker_rewards, victim_regrets=victim_regrets, arm_choices=arm_choices)
 
-        A2C_model = A2C.load("models/a2c/{victim_name}/{gamma}/a2c_{victim_name}_{gamma}_{seed}".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed), victim)
-        victim_rewards, attacker_rewards, victim_regrets, arm_choices = test_attacker(A2C_model, victim, NUM_ITER, NUM_TESTS)
-        fname = "raw_results/a2c/{victim_name}/{gamma}/a2c_{victim_name}_{gamma}_{seed}.npz".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed)
-        os.makedirs(os.path.dirname(fname), exist_ok=True)
-        np.savez_compressed(fname, victim_rewards=victim_rewards, attacker_rewards=attacker_rewards, victim_regrets=victim_regrets, arm_choices=arm_choices)
-
-        DDPG_model = DDPG.load("models/ddpg/{victim_name}/{gamma}/ddpg_{victim_name}_{gamma}_{seed}".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed), victim)
-        victim_rewards, attacker_rewards, victim_regrets, arm_choices = test_attacker(DDPG_model, victim, NUM_ITER, NUM_TESTS)
-        fname = "raw_results/ddpg/{victim_name}/{gamma}/ddpg_{victim_name}_{gamma}_{seed}.npz".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed)
-        os.makedirs(os.path.dirname(fname), exist_ok=True)
-        np.savez_compressed(fname, victim_rewards=victim_rewards, attacker_rewards=attacker_rewards, victim_regrets=victim_regrets, arm_choices=arm_choices)
+        # PPO_model = PPO.load("models/ppo/{victim_name}/{gamma}/ppo_{victim_name}_{gamma}_{seed}".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed), victim)
+        # victim_rewards, attacker_rewards, victim_regrets, arm_choices = test_attacker(PPO_model, victim, NUM_ITER, NUM_TESTS)
+        # fname = "raw_results/ppo/{victim_name}/{gamma}/ppo_{victim_name}_{gamma}_{seed}.npz".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed)
+        # os.makedirs(os.path.dirname(fname), exist_ok=True)
+        # np.savez_compressed(fname, victim_rewards=victim_rewards, attacker_rewards=attacker_rewards, victim_regrets=victim_regrets, arm_choices=arm_choices)
+        #
+        # SAC_model = SAC.load("models/sac/{victim_name}/{gamma}/sac_{victim_name}_{gamma}_{seed}".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed), victim)
+        # victim_rewards, attacker_rewards, victim_regrets, arm_choices = test_attacker(SAC_model, victim, NUM_ITER, NUM_TESTS)
+        # "raw_results/sac/{victim_name}/{gamma}/sac_{victim_name}_{gamma}_{seed}.npz".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed)
+        # os.makedirs(os.path.dirname(fname), exist_ok=True)
+        # np.savez_compressed(fname, victim_rewards=victim_rewards, attacker_rewards=attacker_rewards, victim_regrets=victim_regrets, arm_choices=arm_choices)
+        #
+        # A2C_model = A2C.load("models/a2c/{victim_name}/{gamma}/a2c_{victim_name}_{gamma}_{seed}".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed), victim)
+        # victim_rewards, attacker_rewards, victim_regrets, arm_choices = test_attacker(A2C_model, victim, NUM_ITER, NUM_TESTS)
+        # fname = "raw_results/a2c/{victim_name}/{gamma}/a2c_{victim_name}_{gamma}_{seed}.npz".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed)
+        # os.makedirs(os.path.dirname(fname), exist_ok=True)
+        # np.savez_compressed(fname, victim_rewards=victim_rewards, attacker_rewards=attacker_rewards, victim_regrets=victim_regrets, arm_choices=arm_choices)
+        #
+        # DDPG_model = DDPG.load("models/ddpg/{victim_name}/{gamma}/ddpg_{victim_name}_{gamma}_{seed}".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed), victim)
+        # victim_rewards, attacker_rewards, victim_regrets, arm_choices = test_attacker(DDPG_model, victim, NUM_ITER, NUM_TESTS)
+        # fname = "raw_results/ddpg/{victim_name}/{gamma}/ddpg_{victim_name}_{gamma}_{seed}.npz".format(victim_name=victim_name, gamma=int(gamma * 100), seed=seed)
+        # os.makedirs(os.path.dirname(fname), exist_ok=True)
+        # np.savez_compressed(fname, victim_rewards=victim_rewards, attacker_rewards=attacker_rewards, victim_regrets=victim_regrets, arm_choices=arm_choices)
 
 
 def main():
@@ -225,7 +244,8 @@ def main():
     # random_attack_victim_reward, random_attack_victim_cum_regret, random_attack_attacker_reward = test_attacker(random_attack_model, victim)
     #
     #
-    npzfile = np.load('raw_results/ppo/exp3/99/ppo_exp3_99_0.npz')
+    # npzfile = np.load('raw_results/random/ucb/99/random_ucb_99_4.npz')
+    npzfile = np.load('raw_results/ppo/ucb/99/ppo_ucb_99_7.npz')
     mean = npzfile['victim_regrets'].mean(axis=0)
     regret = np.cumsum(mean)
     plt.plot(regret)
