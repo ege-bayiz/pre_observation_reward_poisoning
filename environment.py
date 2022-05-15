@@ -4,7 +4,7 @@ from scipy.special import gamma
 import matplotlib.pyplot as plt
 import matplotlib.axes as axs
 from matplotlib import collections  as mc
-from matplotlib import cm
+import matplotlib
 import palette
 
 class Arm(ABC):
@@ -221,13 +221,23 @@ def generate_10_arm_testbed(type = 'StandardNormal'):
 
 
 def test():
+    ## Font size settings
+    font = {'family': 'sans',
+            'weight': 'normal',
+            'size': 18}
+    plt.rcParams["font.family"] = "Times New Roman"
+    matplotlib.rc('font', **font)
+
     env = generate_10_arm_testbed('StandardNormal')
     print(env.arm_means)
-    fig = plt.figure(figsize=(10,6))
-    ax = plt.axes((0.1,0.1,0.8,0.8))
+    fig = plt.figure(figsize=(20,6))
+    ax = plt.axes((0.025,0.05,0.95,0.9))
     env.violin_plot(ax, palette.DEFAULT_COLORS)
+    plt.margins(0)
+    plt.tight_layout()
+    plt.savefig('refined_results/plots/victim_env.pdf')
     plt.show()
 
-# test()
+test()
 # test()
 

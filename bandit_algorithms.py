@@ -135,8 +135,7 @@ def test_bandit_algorithm(alg: BanditAlgorithm, env: Environment, num_iter: int,
     plt.xlabel('iterations')
     plt.ylabel('regret')
     plt.title('Cumulative Regret')
-    plt.grid()
-    plt.show()
+
 
 # env = environment.generate_10_arm_testbed('StandardNormal')
 # bandit = Exp3Algorithm(10, 0.001)

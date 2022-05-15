@@ -1,3 +1,12 @@
-/models/
 /shelf/
 /workspace.xml
+/models/a2c/
+/models/ddpg/
+/models/sac/
+/raw_results/a2c/
+/raw_results/ddpg/
+/raw_results/random/
+/raw_results/sac/
+/raw_results/vanilla/
+/models/
+/raw_results/
