@@ -236,8 +236,8 @@ def test():
     plt.margins(0)
     plt.tight_layout()
     plt.savefig('refined_results/plots/victim_env.pdf')
-    plt.show()
+    # plt.show()
 
-test()
+# test()
 # test()
 

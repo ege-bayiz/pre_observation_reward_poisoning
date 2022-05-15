@@ -21,7 +21,7 @@ NUM_ITER = 10000
 NUM_TESTS = 30
 VICTIM_MODELS = {'ucb': alg.UcbAlgorithm,
                  'exp3': alg.Exp3Algorithm}
-ATTACKER_MODELS = ["a2c", "ddpg", "ppo", "sac"]
+ATTACKER_MODELS = ["a2c", "ddpg", "sac"]
 GAMMA_VALUES = [0.99, 1]
 TARGET_ARM = 5
 
@@ -372,7 +372,7 @@ def plot_results():
     random_npz = np.load('raw_results/random/ucb/99/random_ucb_99_5.npz')
     a2c_npz = np.load('raw_results/a2c/ucb/100/a2c_ucb_100_3.npz')
     ddpg_npz = np.load('raw_results/ddpg/ucb/100/ddpg_ucb_100_6.npz')
-    sac_npz = np.load('raw_results/sac/ucb/99/sac_ucb_99_3.npz')
+    sac_npz = np.load('raw_results/sac/ucb/100/sac_ucb_100_5.npz')
     #ppo_npz = np.load('raw_results/ppo/ucb/100/ppo_ucb_100_5.npz')
 
     ## Regret plots (ucb)
